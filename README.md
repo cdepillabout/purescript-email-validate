@@ -19,3 +19,12 @@ A small library providing an EmailAddress type.  Based on the Haskell library [e
     pulp build
     pulp test
 
+### Building with Docker
+
+```
+$ pushd docker/ && docker build --tag purescript-email-validate . && popd
+$ docker run --rm --tty --interactive --volume `pwd`:/opt/src --workdir /opt/src --user `id -u`:`id -g` purescript-email-validate pulp dep install
+$ docker run --rm --tty --interactive --volume `pwd`:/opt/src --workdir /opt/src --user `id -u`:`id -g` purescript-email-validate pulp build
+$ docker run --rm --tty --interactive --volume `pwd`:/opt/src --workdir /opt/src --user `id -u`:`id -g` purescript-email-validate pulp test
+```
+
