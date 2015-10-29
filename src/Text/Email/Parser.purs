@@ -12,15 +12,17 @@ import Prelude
 
 import Control.Alt ((<|>))
 import Control.Apply ((*>), (<*))
+import Data.Char (fromCharCode)
 import Data.Foldable (fold, intercalate)
 import Data.Generic (Generic, gEq)
 import Data.List (List(), concat)
-import Data.Maybe.Unsafe (unsafeThrow)
 import Data.String (contains, fromChar)
 -- import Text.Parsing.Parser ()
 import Text.Parsing.StringParser (Parser())
-import Text.Parsing.StringParser.Combinators (many, optional, sepBy1)
+import Text.Parsing.StringParser.Combinators (many, many1, optional, sepBy1)
 import Text.Parsing.StringParser.String (char, satisfy)
+
+foreign import undefined :: forall a . a
 
 -- | Represents an email address.
 newtype EmailAddress = EmailAddress { localPart :: String
@@ -55,18 +57,32 @@ local :: EmailParser String
 local = dottedAtoms
 
 domain :: EmailParser String
--- domain = dottedAtoms <|> domainLiteral
-domain = unsafeThrow "error"
+domain = dottedAtoms <|> domainLiteral
 
 dottedAtoms :: EmailParser String
-dottedAtoms = intercalate "." <$> what
+dottedAtoms = intercalate "." <$> inner
   where
-    what :: EmailParser (List String)
-    what = do
-        void $ optional cfws
+    inner :: EmailParser (List String)
+    inner = do
+        void $ optional commentOrWhiteSpace
         ret <- (atom <|> quotedString) `sepBy1` char '.'
-        void $ optional cfws
+        void $ optional commentOrWhiteSpace
         pure ret
+
+domainLiteral :: EmailParser String
+domainLiteral = do
+    optional commentOrWhiteSpace
+    void $ char '['
+    domainText <- many $ optional whiteSpaceOrNewLine *> takeWhile1 isDomainText
+    optional whiteSpaceOrNewLine
+    void $ char ']'
+    optional commentOrWhiteSpace
+    pure $ "[" <> fold domainText <> "]"
+
+isDomainText :: Char -> Boolean
+isDomainText x = inClassRange (fromCharCode 33) (fromCharCode 90) x
+              || inClassRange (fromCharCode 94) (fromCharCode 126) x
+              || isObsNoWsCtl x
 
 quotedString :: EmailParser String
 quotedString = (\x -> "\"" <> fold x <> "\"") <$> what
@@ -74,8 +90,8 @@ quotedString = (\x -> "\"" <> fold x <> "\"") <$> what
     what :: EmailParser (List String)
     what = do
         void $ char '"'
-        ret <- many $ optional fws *> quotedContent
-        void $ optional fws
+        ret <- many $ optional whiteSpaceOrNewLine *> quotedContent
+        void $ optional whiteSpaceOrNewLine
         void $ char '"'
         pure ret
 
@@ -90,23 +106,26 @@ skipMany1 p = do
     void $ skipMany p
     return unit
 
-cfws :: EmailParser Unit
-cfws = skipMany (comment <|> fws)
+commentOrWhiteSpace :: EmailParser Unit
+commentOrWhiteSpace = skipMany (comment <|> whiteSpaceOrNewLine)
 
-fws :: EmailParser Unit
-fws = void something1 <|> something2
+whiteSpaceOrNewLine :: EmailParser Unit
+whiteSpaceOrNewLine = p1 <|> p2
   where
-    something1 :: EmailParser Unit
-    something1 = wsp1 *> optional (crlf *> wsp1)
+    p1 :: EmailParser Unit
+    p1 = whiteSpace1 *> optional (crlf *> whiteSpace1)
 
-    something2 :: EmailParser Unit
-    something2 = skipMany1 $ crlf *> wsp1
+    p2 :: EmailParser Unit
+    p2 = skipMany1 $ crlf *> whiteSpace1
 
 quotedContent :: EmailParser String
 quotedContent = takeWhile1 isQuotedText <|> quotedPair
 
 isQuotedText :: Char -> Boolean
-isQuotedText x = inClass "\33\35-\91\93-\126" x || isObsNoWsCtl x
+isQuotedText x = inClass (fromChar (fromCharCode 33)) x
+              || inClassRange (fromCharCode 35) (fromCharCode 91) x
+              || inClassRange (fromCharCode 93) (fromCharCode 126) x
+              || isObsNoWsCtl x
 
 quotedPair :: EmailParser String
 quotedPair = do
@@ -116,10 +135,10 @@ quotedPair = do
     what :: EmailParser Char
     what = do
         void $ char '\\'
-        vchar <|> wsp <|> lf <|> cr <|> obsNoWsCtl <|> nullChar
+        vchar <|> whiteSpace <|> lf <|> cr <|> obsNoWsCtl <|> nullChar
 
 isVchar :: Char -> Boolean
-isVchar = inClass "\x21-\x7e"
+isVchar = inClassRange (fromCharCode 33) (fromCharCode 126)
 
 vchar :: EmailParser Char
 vchar = satisfy isVchar
@@ -127,20 +146,22 @@ vchar = satisfy isVchar
 comment :: EmailParser Unit
 comment = do
     void $ char '('
-    skipMany $ void commentContent <|> fws
+    skipMany $ commentContent <|> whiteSpaceOrNewLine
     void $ char ')'
     pure unit
-
-commentContent :: EmailParser Unit
--- commentContent = skipWhile1 isCommentText <|> void quotedPair <|> comment
-commentContent = skipWhile1 isCommentText <|> void quotedPair <|> unsafeThrow "error"
+  where
+    commentContent :: EmailParser Unit
+    -- commentContent = skipWhile1 isCommentText <|> void quotedPair <|> comment
+    commentContent = skipWhile1 isCommentText <|> void quotedPair
 
 isCommentText :: Char -> Boolean
--- isCommentText x = inClass "\33-\39\42-\91\93-\126" x || isObsNoWsCtl x
-isCommentText x = unsafeThrow "error"
+isCommentText x = inClassRange (fromCharCode 33) (fromCharCode 39) x
+               || inClassRange (fromCharCode 42) (fromCharCode 91) x
+               || inClassRange (fromCharCode 93) (fromCharCode 126) x
+               || isObsNoWsCtl x
 
 nullChar :: EmailParser Char
-nullChar = char '\0'
+nullChar = char $ fromCharCode 0
 
 skipWhile1 :: (Char -> Boolean) -> EmailParser Unit
 skipWhile1 x = do
@@ -148,11 +169,11 @@ skipWhile1 x = do
     void $ skipMany (satisfy x)
     pure unit
 
-wsp1 :: EmailParser Unit
-wsp1 = skipWhile1 isWsp
+whiteSpace1 :: EmailParser Unit
+whiteSpace1 = skipWhile1 isWsp
 
-wsp :: EmailParser Char
-wsp = satisfy isWsp
+whiteSpace :: EmailParser Char
+whiteSpace = satisfy isWsp
 
 isWsp :: Char -> Boolean
 isWsp x = x == ' ' || x == '\t'
@@ -175,23 +196,19 @@ lf = char '\n'
 crlf :: EmailParser Unit
 crlf = void $ cr *> lf
 
--- isVchar :: Char -> Bool
--- isVchar = inClass "\x21-\x7e"
-
--- vchar :: Parser Char
--- vchar = satisfy isVchar
-
 isObsNoWsCtl :: Char -> Boolean
-isObsNoWsCtl = inClass "\1-\8\11-\12\14-\31\127"
+isObsNoWsCtl c = inClassRange (fromCharCode 1) (fromCharCode 8) c
+              || inClassRange (fromCharCode 14) (fromCharCode 31) c
+              || inClass "\11\12\127" c
 
 obsNoWsCtl :: EmailParser Char
 obsNoWsCtl = satisfy isObsNoWsCtl
 
 inClass :: String -> Char -> Boolean
-inClass string char =
-    if "-" `contains` string
-       then unsafeThrow "error"
-       else fromChar char `contains` string
+inClass string char = fromChar char `contains` string
+
+inClassRange :: Char -> Char -> Char -> Boolean
+inClassRange start end c = c >= start && c <= end
 
 atom :: EmailParser String
 atom = takeWhile1 isAtomText
@@ -201,10 +218,7 @@ atom = takeWhile1 isAtomText
 
 
 takeWhile1 :: (Char -> Boolean) -> EmailParser String
-takeWhile1 = unsafeThrow "error"
-  where
-    takeWhile :: (Char -> Boolean) -> EmailParser String
-    takeWhile  = unsafeThrow "error"
+takeWhile1 f = fold <<< map fromChar <$> (many1 $ satisfy f)
 
 -- instance Show EmailAddress where
 --     show = show . toByteString
@@ -245,7 +259,7 @@ takeWhile1 = unsafeThrow "error"
 
 -- dottedAtoms :: Parser ByteString
 -- dottedAtoms = BS.intercalate (BS.singleton '.') <$>
---         between1 (optional cfws) (atom <|> quotedString) `sepBy1` char '.'
+--         between1 (optional commentOrWhiteSpace) (atom <|> quotedString) `sepBy1` char '.'
 
 -- atom :: Parser ByteString
 -- atom = takeWhile1 isAtomText
@@ -256,8 +270,8 @@ takeWhile1 = unsafeThrow "error"
 -- domainLiteral :: Parser ByteString
 -- domainLiteral =
 --     (BS.cons '[' . flip BS.snoc ']' . BS.concat) <$>
---         between (optional cfws *> char '[') (char ']' <* optional cfws)
---             (many (optional fws >> takeWhile1 isDomainText) <* optional fws)
+--         between (optional commentOrWhiteSpace *> char '[') (char ']' <* optional commentOrWhiteSpace)
+--             (many (optional whiteSpaceOrNewLine >> takeWhile1 isDomainText) <* optional whiteSpaceOrNewLine)
 
 -- isDomainText :: Char -> Bool
 -- isDomainText x = inClass "\33-\90\94-\126" x || isObsNoWsCtl x
@@ -266,7 +280,7 @@ takeWhile1 = unsafeThrow "error"
 -- quotedString =
 --     (\x -> BS.concat [BS.singleton '"', BS.concat x, BS.singleton '"']) <$>
 --         between (char '"') (char '"')
---             (many (optional fws >> quotedContent) <* optional fws)
+--             (many (optional whiteSpaceOrNewLine >> quotedContent) <* optional whiteSpaceOrNewLine)
 
 -- quotedContent :: Parser ByteString
 -- quotedContent = takeWhile1 isQuotedText <|> quotedPair
@@ -275,13 +289,13 @@ takeWhile1 = unsafeThrow "error"
 -- isQuotedText x = inClass "\33\35-\91\93-\126" x || isObsNoWsCtl x
 
 -- quotedPair :: Parser ByteString
--- quotedPair = (BS.cons '\\' . BS.singleton) <$> (char '\\' *> (vchar <|> wsp <|> lf <|> cr <|> obsNoWsCtl <|> nullChar))
+-- quotedPair = (BS.cons '\\' . BS.singleton) <$> (char '\\' *> (vchar <|> whiteSpace <|> lf <|> cr <|> obsNoWsCtl <|> nullChar))
 
--- cfws :: Parser ()
--- cfws = skipMany (comment <|> fws)
+-- commentOrWhiteSpace :: Parser ()
+-- commentOrWhiteSpace = skipMany (comment <|> whiteSpaceOrNewLine)
 
--- fws :: Parser ()
--- fws = void (wsp1 >> optional (crlf >> wsp1)) <|> (skipMany1 (crlf >> wsp1))
+-- whiteSpaceOrNewLine :: Parser ()
+-- whiteSpaceOrNewLine = void (whiteSpace1 >> optional (crlf >> whiteSpace1)) <|> (skipMany1 (crlf >> whiteSpace1))
 
 -- between :: Applicative f => f l -> f r -> f a -> f a
 -- between l r x = l *> x <* r
@@ -290,7 +304,7 @@ takeWhile1 = unsafeThrow "error"
 -- between1 lr x = lr *> x <* lr
 
 -- comment :: Parser ()
--- comment = between (char '(') (char ')') $ skipMany (void commentContent <|> fws)
+-- comment = between (char '(') (char ')') $ skipMany (void commentContent <|> whiteSpaceOrNewLine)
 
 -- commentContent :: Parser ()
 -- commentContent = skipWhile1 isCommentText <|> void quotedPair <|> comment
@@ -304,11 +318,11 @@ takeWhile1 = unsafeThrow "error"
 -- skipWhile1 :: (Char -> Bool) -> Parser()
 -- skipWhile1 x = satisfy x >> skipWhile x
 
--- wsp1 :: Parser ()
--- wsp1 = skipWhile1 isWsp
+-- whiteSpace1 :: Parser ()
+-- whiteSpace1 = skipWhile1 isWsp
 
--- wsp :: Parser Char
--- wsp = satisfy isWsp
+-- whiteSpace :: Parser Char
+-- whiteSpace = satisfy isWsp
 
 -- isWsp :: Char -> Bool
 -- isWsp x = x == ' ' || x == '\t'
