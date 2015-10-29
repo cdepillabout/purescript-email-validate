@@ -152,6 +152,7 @@ comment = do
   where
     commentContent :: EmailParser Unit
     -- commentContent = skipWhile1 isCommentText <|> void quotedPair <|> comment
+    -- TODO: This needs to recurse on 'comment'.
     commentContent = skipWhile1 isCommentText <|> void quotedPair
 
 isCommentText :: Char -> Boolean
