@@ -1,11 +1,11 @@
 
 module Text.Email.Parser
-    ( -- addrSpec
+    -- ( -- addrSpec
     --, localPart
     --, domainPart
-    EmailAddress()
+    -- EmailAddress()
     --, toByteString
-    )
+    -- )
 where
 
 import Prelude

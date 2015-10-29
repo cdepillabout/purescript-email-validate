@@ -14,5 +14,11 @@
     "purescript-generics": "~0.6.2",
     "purescript-parsing": "~0.7.1",
     "purescript-string-parsers": "~0.6.3"
+  },
+  "devDependencies": {
+    "purescript-spec": "~0.7.2"
+  },
+  "resolutions": {
+    "purescript-transformers": "^0.6.0"
   }
 }
