@@ -74,9 +74,6 @@ mkUnitTest email shouldPass errorString =
     EmailUnitTest ({ email : email, shouldPass : shouldPass, errorString : errorString })
 
 -- | A big array of email addresses and whether or not they are vaild.
---
--- TODO: Some are commented out because we can't handle nested comments
--- (recursive monadic code).  When this is fixed, they can be uncommented.
 units :: Array EmailUnitTest
 units = [ mkUnitTest "first.last@example.com" true ""
         , mkUnitTest "1234567890123456789012345678901234567890123456789012345678901234@example.com" true ""
