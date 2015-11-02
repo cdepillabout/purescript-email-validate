@@ -1,11 +1,11 @@
 
 module Text.Email.Parser
-    -- ( -- addrSpec
-    --, localPart
-    --, domainPart
-    -- EmailAddress()
-    --, toByteString
-    -- )
+    ( EmailAddress()
+    , addrSpec
+    , domainPart
+    , localPart
+    , toString
+    )
 where
 
 import Prelude
@@ -17,7 +17,6 @@ import Data.Foldable (fold, intercalate)
 import Data.Generic (Generic, gEq)
 import Data.List (List(), concat)
 import Data.String (contains, fromChar)
--- import Text.Parsing.Parser ()
 import Text.Parsing.StringParser (Parser())
 import Text.Parsing.StringParser.Combinators (many, many1, optional, sepBy1)
 import Text.Parsing.StringParser.String (char, satisfy)

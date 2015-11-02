@@ -4,6 +4,7 @@ module Test.Main where
 import Prelude
 
 import Control.Apply ((*>))
+import Control.Monad (when)
 import Control.Monad.Aff (Aff())
 import Control.Monad.Eff (Eff())
 import Control.Monad.Eff.Class (liftEff)
@@ -22,27 +23,12 @@ import Test.Spec.Reporter.Console (consoleReporter)
 import Text.Parsing.StringParser (Parser(), ParseError(..), Pos(), PosString(), unParser)
 
 import Text.Email.Parser
-
--- | Run a parser for an input string, returning either an error or a result.
-runParser :: forall e a. Parser a -> String -> Aff (console :: CONSOLE | e) (Either ParseError a)
-runParser p s = unParser p { str: s, pos: 0 } errorHandler successHandler
-  where
-    errorHandler :: Pos -> ParseError -> Aff (console :: CONSOLE | e) (Either ParseError a)
-    errorHandler _ err = pure $ Left err
-
-    successHandler :: a -> PosString -> Aff (console :: CONSOLE | e) (Either ParseError a)
-    successHandler a posString = do
-        liftEff $ log $ "string length: " <> show (length posString.str)
-        liftEff $ log $ "position: " <> show posString.pos
-        if length posString.str == posString.pos
-            then pure $ Right a
-            else pure $ Left $ ParseError "could not parse the whole email string"
+import Text.Email.Validate
 
 main :: forall e . Eff (console :: CONSOLE, process :: Process | e) Unit
 main = run [consoleReporter] do
     describe "email validation" do
         traverse_ runUnitTests units
-
 
 runUnitTests :: forall e . EmailUnitTest -> Spec (console :: CONSOLE | e) Unit
 runUnitTests emailUnitTest@(EmailUnitTest {email: e, shouldPass: result, errorString: err }) = do
@@ -55,13 +41,21 @@ runUnitTests emailUnitTest@(EmailUnitTest {email: e, shouldPass: result, errorSt
   where
     doUnitTest :: Aff (console :: CONSOLE | e) Boolean
     doUnitTest = do
-        eitherParseResult <- runParser addrSpec e
+        let eitherParseResult = runEmailParser e
         case eitherParseResult of
              Left error -> do
-                 liftEff $ log $ "ERROR parsing " <> e <> ": " <> show error
+                 when (result == true) $
+                    liftEff $ log $ "ERROR parsing "
+                                 <> e
+                                 <> ": "
+                                 <> show error
                  pure (not result)
              Right emailAddress -> do
-                 liftEff $ log $ show emailAddress
+                 when (result == false) $
+                    liftEff $ log $ "SUCCEED in parsing "
+                                 <> e
+                                 <> ", but should have FAILED because "
+                                 <> err
                  pure result
 
 newtype EmailUnitTest = EmailUnitTest { email :: String
