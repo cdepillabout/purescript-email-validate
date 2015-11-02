@@ -5,7 +5,12 @@ MAINTAINER Dennis Gosnell <cdep.illabout@gmail.com>
 # Update apt and instal some nice utilities.
 RUN apt-get update
 RUN apt-get update
-RUN apt-get install tree sudo
+RUN apt-get install tree sudo locales
+
+# Set default locale.
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+RUN locale-gen
+ENV LC_ALL en_US.UTF-8
 
 # Username and group that everything will run under in the docker container.
 ENV PURESCRIPT_DOCKER_USERNAME me
