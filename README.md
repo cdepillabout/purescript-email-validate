@@ -7,7 +7,6 @@ purescript-email-validate
 A small library providing an EmailAddress type.  Based on the Haskell library [email-validate](https://hackage.haskell.org/package/email-validate).
 
 - [Module documentation](docs/Text/Parsing/)
-- [Example usage](test/Main.purs)
 
 ### Installing
 
