@@ -41,7 +41,7 @@ RUN cd /opt \
     && echo "${PURESCRIPT_DOWNLOAD_SHA1} linux64.tar.gz" | sha1sum --check - \
     && tar -xvf linux64.tar.gz \
     && rm /opt/linux64.tar.gz
-ENV PATH /opt/purescript:$PATH
+ENV PATH /opt/purescript:$PATH:/usr/local/lib/node_modules/pulp/node_modules/.bin
 
 # Install pulp.
 RUN npm install --global pulp
