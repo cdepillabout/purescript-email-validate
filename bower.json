@@ -11,12 +11,12 @@
     "output"
   ],
   "dependencies": {
-    "purescript-generics": "~0.6.2",
-    "purescript-parsing": "~0.7.1",
-    "purescript-string-parsers": "~0.6.3"
+    "purescript-generics": "^0.6",
+    "purescript-parsing": "^0.7",
+    "purescript-string-parsers": "^0.6"
   },
   "devDependencies": {
-    "purescript-spec": "~0.7.2"
+    "purescript-spec": "^0.7"
   },
   "resolutions": {
     "purescript-transformers": "^0.6.0"
