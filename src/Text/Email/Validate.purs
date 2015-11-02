@@ -14,7 +14,7 @@ import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.String (length)
-import Text.Email.Parser (EmailAddress(), addrSpec, domainPart, localPart, toString)
+import Text.Email.Parser (EmailAddress(..), addrSpec, domainPart, localPart, toString)
 import Text.Parsing.StringParser (Parser(), ParseError(..), Pos(), PosString(), unParser)
 
 -- | Smart constructor for an email address
