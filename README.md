@@ -28,3 +28,18 @@ $ docker run --rm --tty --interactive --volume `pwd`:/opt/src --workdir /opt/src
 $ docker run --rm --tty --interactive --volume `pwd`:/opt/src --workdir /opt/src --user `id -u`:`id -g` purescript-email-validate pulp test
 ```
 
+### Usage
+
+```
+> import Text.Email.Validate (EmailAddress(), toString, emailAddress)
+> :t emailAddress
+String -> Either String EmailAddress
+> emailAddress "test@email.com"
+Right test@email.com
+> emailAddress "bad@email@address"
+Left "bad email address"
+> :t toString
+EmailAddress -> String
+> toString $ emailAddress "test@email.com"
+test@email.com
+```
