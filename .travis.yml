@@ -6,4 +6,5 @@ install:
     - npm install purescript pulp -g
     - pulp dep update
 script:
-    - pulp build && pulp test
+    - pulp build
+    - pulp test
