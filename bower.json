@@ -20,5 +20,9 @@
   },
   "resolutions": {
     "purescript-transformers": "^0.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cdepillabout/purescript-email-validate"
   }
 }
