@@ -1,6 +1,7 @@
 
 module Text.Email.Parser
     ( EmailAddress(..)
+    , EmailParser()
     , addrSpec
     , domainPart
     , localPart
