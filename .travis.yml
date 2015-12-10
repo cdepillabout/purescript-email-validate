@@ -4,6 +4,8 @@ node_js:
     - 0.10
 install:
     - npm install purescript pulp -g
+    - psc --version
+    - pulp --version
     - pulp dep update
 script:
     - pulp build
