@@ -15,7 +15,7 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.String (length)
 import Text.Email.Parser (EmailAddress(..), addrSpec, domainPart, localPart, toString)
-import Text.Parsing.StringParser (Parser(), ParseError(..), Pos(), PosString(), unParser)
+import Text.Parsing.StringParser (ParseError(..), Pos(), PosString(), unParser)
 
 -- | Smart constructor for an email address
 emailAddress :: String -> Maybe EmailAddress
@@ -43,7 +43,7 @@ validate :: String -> Either String EmailAddress
 validate = lmap show <<< runEmailParser
 
 -- | Run a parser for an input string, returning either an error or a result.
-runEmailParser :: forall e. String -> Either ParseError EmailAddress
+runEmailParser :: String -> Either ParseError EmailAddress
 runEmailParser s = unParser addrSpec { str: s, pos: 0 } errorHandler successHandler
   where
     errorHandler :: Pos -> ParseError -> Either ParseError EmailAddress
