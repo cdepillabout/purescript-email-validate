@@ -3,4 +3,5 @@
 /output/
 /.psci*
 /.pulp-cache/
+/pursuit.json
 /src/.webpack.js
