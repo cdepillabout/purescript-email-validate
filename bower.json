@@ -1,6 +1,6 @@
 {
   "name": "purescript-email-validate",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "moduleType": [
     "node"
   ],
