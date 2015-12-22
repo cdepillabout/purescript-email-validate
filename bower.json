@@ -1,6 +1,6 @@
 {
   "name": "purescript-email-validate",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "moduleType": [
     "node"
   ],
@@ -14,8 +14,8 @@
     "purescript-generics": "^0.7",
     "purescript-parsing": "^0.7",
     "purescript-string-parsers": "^0.6",
-    "purescript-aff": "~0.13.1",
-    "purescript-transformers": "~0.8.4"
+    "purescript-aff": "^0.13",
+    "purescript-transformers": "^0.8"
   },
   "devDependencies": {
     "purescript-super-spec": "^0.8"

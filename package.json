@@ -1,6 +1,6 @@
 {
   "name": "purescript-email-validate",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "PureScript library to parse an email address.",
   "directories": {
     "doc": "docs",
