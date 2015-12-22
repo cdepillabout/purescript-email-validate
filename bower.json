@@ -18,11 +18,7 @@
     "purescript-transformers": "~0.8.4"
   },
   "devDependencies": {
-    "purescript-spec": "^0.7"
-  },
-  "resolutions": {
-    "purescript-aff": "~0.13.1",
-    "purescript-transformers": "^0.8.1"
+    "purescript-super-spec": "^0.8"
   },
   "repository": {
     "type": "git",
