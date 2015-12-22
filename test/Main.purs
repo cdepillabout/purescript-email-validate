@@ -1,29 +1,23 @@
 
 module Test.Main where
 
-import Prelude
+import Prelude (..)
 
-import Control.Apply ((*>))
 import Control.Monad (when)
 import Control.Monad.Aff (Aff())
 import Control.Monad.Eff (Eff())
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE(), log)
-import Control.Monad.Trans (lift)
-import Data.Array ((!!))
 import Data.Char (fromCharCode)
 import Data.Either (Either(..))
 import Data.Foldable (traverse_)
-import Data.Maybe (Maybe(..))
-import Data.String (fromChar, length)
-import Test.Spec (Spec(), describe, pending, it)
+import Data.String (fromChar)
+import Test.Spec (Spec(), describe, it)
 import Test.Spec.Runner (Process(), run)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.Reporter.Console (consoleReporter)
-import Text.Parsing.StringParser (Parser(), ParseError(..), Pos(), PosString(), unParser)
 
-import Text.Email.Parser
-import Text.Email.Validate
+import Text.Email.Validate (..)
 
 main :: forall e . Eff (console :: CONSOLE, process :: Process | e) Unit
 main = run [consoleReporter] do
