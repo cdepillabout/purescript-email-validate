@@ -12,13 +12,17 @@ A small library providing an EmailAddress type.  Based on the Haskell library
 
 ### Installing
 
-    pulp dep install purescript-email-validate
+```sh
+$ npm install
+$ ./node_modules/.bin/bower install purescript-email-validate
+```
 
 ### Building / Testing
 
-    pulp dep update
-    pulp build
-    pulp test
+```sh
+$ pulp build
+$ pulp test
+```
 
 ### Usage
 
