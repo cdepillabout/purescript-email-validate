@@ -8,7 +8,7 @@ module Text.Email.Validate
 	)
 where
 
-import Prelude
+import Prelude (..)
 
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))

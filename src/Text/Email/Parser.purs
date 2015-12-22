@@ -9,13 +9,13 @@ module Text.Email.Parser
     )
 where
 
-import Prelude
+import Prelude (..)
 
 import Control.Alt ((<|>))
 import Control.Apply ((*>))
 import Data.Char (fromCharCode)
 import Data.Foldable (fold, intercalate)
-import Data.Generic (Generic, gEq)
+import Data.Generic (class Generic, gEq)
 import Data.List (List())
 import Data.String (contains, fromChar)
 import Text.Parsing.StringParser (Parser())
