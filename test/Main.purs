@@ -1,7 +1,7 @@
 
 module Test.Main where
 
-import Prelude (..)
+import Prelude (Unit, (<>), bind, pure, ($), (==), not, show)
 
 import Control.Monad (when)
 import Control.Monad.Aff (Aff())
@@ -17,7 +17,7 @@ import Test.Spec.Runner (Process(), run)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.Reporter.Console (consoleReporter)
 
-import Text.Email.Validate (..)
+import Text.Email.Validate (runEmailParser)
 
 main :: forall e . Eff (console :: CONSOLE, process :: Process | e) Unit
 main = run [consoleReporter] do
