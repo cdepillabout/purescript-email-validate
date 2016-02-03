@@ -6,7 +6,7 @@ install:
     - npm install purescript pulp -g
     - psc --version
     - pulp --version
-    - pulp dep update
+    - bower update
 script:
     - pulp build
     - pulp test
