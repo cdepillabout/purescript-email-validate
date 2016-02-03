@@ -3,7 +3,8 @@ sudo: false
 node_js:
     - stable
 install:
-    - npm install purescript pulp -g
+    - npm install
+    - export PATH="node_modules/.bin:$PATH"
     - psc --version
     - pulp --version
     - bower update
