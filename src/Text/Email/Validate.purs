@@ -1,14 +1,14 @@
 module Text.Email.Validate
-	( isValid
-	, validate
-	, emailAddress
-	, canonicalizeEmail
+    ( isValid
+    , validate
+    , emailAddress
+    , canonicalizeEmail
     , runEmailParser
     , module Text.Email.Parser
-	)
+    )
 where
 
-import Prelude
+import Prelude ((==), (<<<), ($), show, map)
 
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
