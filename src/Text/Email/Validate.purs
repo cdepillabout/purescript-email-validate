@@ -8,14 +8,13 @@ module Text.Email.Validate
     )
 where
 
-import Prelude ((==), (<<<), ($), show, map)
+import Prelude
 
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
-import Data.String (length)
 import Text.Email.Parser (EmailAddress(..), addrSpec, domainPart, localPart, toString)
-import Text.Parsing.StringParser (ParseError(..), Pos(), PosString(), unParser)
+import Text.Parsing.StringParser (ParseError, runParser)
 
 -- | Smart constructor for an email address
 emailAddress :: String -> Maybe EmailAddress
@@ -44,13 +43,4 @@ validate = lmap show <<< runEmailParser
 
 -- | Run a parser for an input string, returning either an error or a result.
 runEmailParser :: String -> Either ParseError EmailAddress
-runEmailParser s = unParser addrSpec { str: s, pos: 0 } errorHandler successHandler
-  where
-    errorHandler :: Pos -> ParseError -> Either ParseError EmailAddress
-    errorHandler _ err = Left err
-
-    successHandler :: EmailAddress -> PosString -> Either ParseError EmailAddress
-    successHandler emailAddr posString = do
-        if length posString.str == posString.pos
-            then Right emailAddr
-            else Left $ ParseError "leftover characters at end of email string"
+runEmailParser s = runParser addrSpec s
