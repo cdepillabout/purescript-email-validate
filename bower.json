@@ -21,7 +21,7 @@
     "type": "git",
     "url": "git://github.com/cdepillabout/purescript-email-validate"
   },
-  "license": "BSD3",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "purescript-spec": "^1.0.0"
   }
