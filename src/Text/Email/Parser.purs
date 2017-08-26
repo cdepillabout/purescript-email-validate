@@ -10,20 +10,16 @@ module Text.Email.Parser
 where
 
 import Prelude
-    ( class Eq, class Show, Unit, ($), map, (<$>), (<<<), (||), (<=), (&&)
-    , (>=), void, (==), unit, pure, bind, (<>), return
-    )
 
 import Control.Alt ((<|>))
-import Control.Apply ((*>))
 import Data.Char (fromCharCode)
 import Data.Foldable (fold, intercalate)
 import Data.Generic (class Generic, gEq)
-import Data.List (List())
-import Data.String (contains, fromChar)
-import Text.Parsing.StringParser (Parser())
+import Data.List (List)
+import Data.String (Pattern(..), contains, fromCharArray, singleton)
+import Text.Parsing.StringParser (Parser)
 import Text.Parsing.StringParser.Combinators (many, many1, optional, sepBy1)
-import Text.Parsing.StringParser.String (char, satisfy)
+import Text.Parsing.StringParser.String (char, eof, satisfy)
 
 -- | Represents an email address.
 newtype EmailAddress = EmailAddress { localPart :: String
@@ -52,7 +48,8 @@ addrSpec = do
     l <- local
     _ <- char '@'
     d <- domain
-    return (EmailAddress {localPart: l, domainPart: d})
+    _ <- eof
+    pure (EmailAddress {localPart: l, domainPart: d})
 
 local :: EmailParser String
 local = dottedAtoms
@@ -101,14 +98,14 @@ quotedString = (\x -> "\"" <> fold x <> "\"") <$> what
 
 -- | Skip many instances of a phrase.
 skipMany :: forall a . EmailParser a -> EmailParser Unit
-skipMany p = skipMany1 p <|> return unit
+skipMany p = skipMany1 p <|> pure unit
 
 -- | Skip at least one instance of a phrase.
 skipMany1 :: forall a . EmailParser a -> EmailParser Unit
 skipMany1 p = do
     void p
     void $ skipMany p
-    return unit
+    pure unit
 
 commentOrWhiteSpace :: EmailParser Unit
 commentOrWhiteSpace = skipMany (comment <|> whiteSpaceOrNewLine)
@@ -126,7 +123,7 @@ quotedContent :: EmailParser String
 quotedContent = takeWhile1 isQuotedText <|> quotedPair
 
 isQuotedText :: Char -> Boolean
-isQuotedText x = inClass (fromChar (fromCharCode 33)) x
+isQuotedText x = inClass (fromCharArray <<< pure $ fromCharCode 33) x
               || inClassRange (fromCharCode 35) (fromCharCode 91) x
               || inClassRange (fromCharCode 93) (fromCharCode 126) x
               || isObsNoWsCtl x
@@ -134,7 +131,7 @@ isQuotedText x = inClass (fromChar (fromCharCode 33)) x
 quotedPair :: EmailParser String
 quotedPair = do
     c <- what
-    pure $ "\\" <> fromChar c
+    pure $ "\\" <> singleton c
   where
     what :: EmailParser Char
     what = do
@@ -205,7 +202,7 @@ obsNoWsCtl :: EmailParser Char
 obsNoWsCtl = satisfy isObsNoWsCtl
 
 inClass :: String -> Char -> Boolean
-inClass string char = fromChar char `contains` string
+inClass string char = (Pattern $ singleton char) `contains` string
 
 inClassRange :: Char -> Char -> Char -> Boolean
 inClassRange start end c = c >= start && c <= end
@@ -218,4 +215,4 @@ atom = takeWhile1 isAtomText
 
 
 takeWhile1 :: (Char -> Boolean) -> EmailParser String
-takeWhile1 f = fold <<< map fromChar <$> (many1 $ satisfy f)
+takeWhile1 f = fold <<< map singleton <$> (many1 $ satisfy f)

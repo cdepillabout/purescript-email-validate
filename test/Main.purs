@@ -1,25 +1,22 @@
-
 module Test.Main where
 
-import Prelude (Unit, (<>), bind, pure, ($), (==), not, show)
+import Prelude
 
-import Control.Monad (when)
-import Control.Monad.Aff (Aff())
-import Control.Monad.Eff (Eff())
+import Control.Monad.Aff (Aff)
+import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Eff.Console (CONSOLE(), log)
+import Control.Monad.Eff.Console (CONSOLE, log)
 import Data.Char (fromCharCode)
 import Data.Either (Either(..))
 import Data.Foldable (traverse_)
-import Data.String (fromChar)
-import Test.Spec (Spec(), describe, it)
-import Test.Spec.Runner (Process(), run)
+import Data.String (singleton)
+import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.Reporter.Console (consoleReporter)
-
+import Test.Spec.Runner (RunnerEffects, run)
 import Text.Email.Validate (runEmailParser)
 
-main :: forall e . Eff (console :: CONSOLE, process :: Process | e) Unit
+main :: Eff (RunnerEffects ()) Unit
 main = run [consoleReporter] do
     describe "email validation" do
         traverse_ runUnitTests units
@@ -253,6 +250,6 @@ units = [ mkUnitTest "first.last@example.com" true ""
         , mkUnitTest "test.\r\n \r\n obs@syntax.com" true "obs-fws allows multiple lines"
         , mkUnitTest "test. \r\n \r\n obs@syntax.com" true "obs-fws allows multiple lines (test 2: space before break)"
         , mkUnitTest "test.\r\n\r\n obs@syntax.com" false "obs-fws must have at least one WSP per line"
-        , mkUnitTest ("\"null \\" <> fromChar (fromCharCode 0) <> "\"@char.com") true "can have escaped null character"
-        , mkUnitTest ("\"null " <> fromChar (fromCharCode 0) <> "\"@char.com") false "cannot have unescaped null character"
+        , mkUnitTest ("\"null \\" <> singleton (fromCharCode 0) <> "\"@char.com") true "can have escaped null character"
+        , mkUnitTest ("\"null " <> singleton (fromCharCode 0) <> "\"@char.com") false "cannot have unescaped null character"
         ]
