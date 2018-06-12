@@ -1,12 +1,11 @@
-
 module Text.Email.Parser
-    ( EmailAddress(..)
-    , EmailParser()
-    , addrSpec
-    , domainPart
-    , localPart
-    , toString
-    )
+  ( EmailAddress(..)
+  , EmailParser()
+  , addrSpec
+  , domainPart
+  , localPart
+  , toString
+  )
 where
 
 import Prelude
@@ -14,9 +13,15 @@ import Prelude
 import Control.Alt ((<|>))
 import Data.Char (fromCharCode)
 import Data.Foldable (fold, intercalate)
-import Data.Generic (class Generic, gEq)
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Eq (genericEq)
+import Data.Generic.Rep.Show (genericShow)
 import Data.List (List)
-import Data.String (Pattern(..), contains, fromCharArray, singleton)
+import Data.List.NonEmpty (NonEmptyList)
+import Data.Maybe (fromJust)
+import Data.String (Pattern(..), contains)
+import Data.String.CodeUnits (singleton)
+import Partial.Unsafe (unsafePartial)
 import Text.Parsing.StringParser (Parser)
 import Text.Parsing.StringParser.Combinators (many, many1, optional, sepBy1)
 import Text.Parsing.StringParser.String (char, eof, satisfy)
@@ -32,9 +37,11 @@ localPart (EmailAddress email) = email.localPart
 domainPart :: EmailAddress -> String
 domainPart (EmailAddress email) = email.domainPart
 
-derive instance genericEmailAddress :: Generic EmailAddress
-instance showEmailAddress :: Show EmailAddress where show = toString
-instance eqEmailAddress :: Eq EmailAddress where eq = gEq
+derive instance genericEmailAddress :: Generic EmailAddress _
+instance showEmailAddress :: Show EmailAddress where
+  show = genericShow
+instance eqEmailAddress :: Eq EmailAddress where
+  eq = genericEq
 
 -- | Converts an email address to a 'String'
 toString :: EmailAddress -> String
@@ -60,7 +67,7 @@ domain = dottedAtoms <|> domainLiteral
 dottedAtoms :: EmailParser String
 dottedAtoms = intercalate "." <$> inner1
   where
-    inner1 :: EmailParser (List String)
+    inner1 :: EmailParser (NonEmptyList String)
     inner1 = inner2 `sepBy1` char '.'
 
     inner2 :: EmailParser String
@@ -81,8 +88,8 @@ domainLiteral = do
     pure $ "[" <> fold domainText <> "]"
 
 isDomainText :: Char -> Boolean
-isDomainText x = inClassRange (fromCharCode 33) (fromCharCode 90) x
-              || inClassRange (fromCharCode 94) (fromCharCode 126) x
+isDomainText x = inClassRange (unsafeFromCharCode 33) (unsafeFromCharCode 90) x
+              || inClassRange (unsafeFromCharCode 94) (unsafeFromCharCode 126) x
               || isObsNoWsCtl x
 
 quotedString :: EmailParser String
@@ -123,9 +130,9 @@ quotedContent :: EmailParser String
 quotedContent = takeWhile1 isQuotedText <|> quotedPair
 
 isQuotedText :: Char -> Boolean
-isQuotedText x = inClass (fromCharArray <<< pure $ fromCharCode 33) x
-              || inClassRange (fromCharCode 35) (fromCharCode 91) x
-              || inClassRange (fromCharCode 93) (fromCharCode 126) x
+isQuotedText x = inClass (singleton $ unsafeFromCharCode 33) x
+              || inClassRange (unsafeFromCharCode 35) (unsafeFromCharCode 91) x
+              || inClassRange (unsafeFromCharCode 93) (unsafeFromCharCode 126) x
               || isObsNoWsCtl x
 
 quotedPair :: EmailParser String
@@ -139,7 +146,7 @@ quotedPair = do
         vchar <|> whiteSpace <|> lf <|> cr <|> obsNoWsCtl <|> nullChar
 
 isVchar :: Char -> Boolean
-isVchar = inClassRange (fromCharCode 33) (fromCharCode 126)
+isVchar = inClassRange (unsafeFromCharCode 33) (unsafeFromCharCode 126)
 
 vchar :: EmailParser Char
 vchar = satisfy isVchar
@@ -152,13 +159,16 @@ comment = do
     pure unit
 
 isCommentText :: Char -> Boolean
-isCommentText x = inClassRange (fromCharCode 33) (fromCharCode 39) x
-               || inClassRange (fromCharCode 42) (fromCharCode 91) x
-               || inClassRange (fromCharCode 93) (fromCharCode 126) x
+isCommentText x = inClassRange (unsafeFromCharCode 33) (unsafeFromCharCode 39) x
+               || inClassRange (unsafeFromCharCode 42) (unsafeFromCharCode 91) x
+               || inClassRange (unsafeFromCharCode 93) (unsafeFromCharCode 126) x
                || isObsNoWsCtl x
 
+unsafeFromCharCode :: Int -> Char
+unsafeFromCharCode = unsafePartial $ fromJust <<< fromCharCode
+
 nullChar :: EmailParser Char
-nullChar = char $ fromCharCode 0
+nullChar = char $ unsafeFromCharCode 0
 
 skipWhile1 :: (Char -> Boolean) -> EmailParser Unit
 skipWhile1 x = do
@@ -194,8 +204,8 @@ crlf :: EmailParser Unit
 crlf = void $ cr *> lf
 
 isObsNoWsCtl :: Char -> Boolean
-isObsNoWsCtl c = inClassRange (fromCharCode 1) (fromCharCode 8) c
-              || inClassRange (fromCharCode 14) (fromCharCode 31) c
+isObsNoWsCtl c = inClassRange (unsafeFromCharCode 1) (unsafeFromCharCode 8) c
+              || inClassRange (unsafeFromCharCode 14) (unsafeFromCharCode 31) c
               || inClass "\11\12\127" c
 
 obsNoWsCtl :: EmailParser Char
@@ -212,7 +222,6 @@ atom = takeWhile1 isAtomText
   where
     isAtomText :: Char -> Boolean
     isAtomText x = isAlphaNum x || inClass "!#$%&'*+/=?^_`{|}~-" x
-
 
 takeWhile1 :: (Char -> Boolean) -> EmailParser String
 takeWhile1 f = fold <<< map singleton <$> (many1 $ satisfy f)

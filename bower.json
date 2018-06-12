@@ -11,11 +11,9 @@
     "output"
   ],
   "dependencies": {
-    "purescript-generics": "^4.0",
-    "purescript-parsing": "^4.3",
-    "purescript-string-parsers": "^3.0",
-    "purescript-aff": "^4.0",
-    "purescript-transformers": "^3.4"
+    "purescript-string-parsers": "^4.0",
+    "purescript-aff": "^5.0",
+    "purescript-transformers": "^4.1"
   },
   "repository": {
     "type": "git",
@@ -23,6 +21,6 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "purescript-spec": "^2.0.0"
+    "purescript-spec": "^3.0.0"
   }
 }
