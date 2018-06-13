@@ -8,7 +8,7 @@ Status](https://travis-ci.org/cdepillabout/purescript-email-validate.svg)](https
 A small library providing an EmailAddress type.  Based on the Haskell library
 [email-validate](https://hackage.haskell.org/package/email-validate).
 
-- [Module documentation](docs/Text/Parsing/)
+- [Module documentation](docs/Text/Email/)
 
 ### Installing
 
