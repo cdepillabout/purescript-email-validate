@@ -2,48 +2,50 @@ module Test.Main where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Eff.Console (CONSOLE, log)
 import Data.Char (fromCharCode)
 import Data.Either (Either(..))
 import Data.Foldable (traverse_)
-import Data.String (singleton)
+import Data.Maybe (fromJust)
+import Data.String.CodeUnits (singleton)
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
+import Effect.Console (log)
+import Partial.Unsafe (unsafePartial)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.Reporter.Console (consoleReporter)
-import Test.Spec.Runner (RunnerEffects, run)
+import Test.Spec.Runner (run)
 import Text.Email.Validate (runEmailParser)
 
-main :: Eff (RunnerEffects ()) Unit
+main :: Effect Unit
 main = run [consoleReporter] do
     describe "email validation" do
         traverse_ runUnitTests units
 
-runUnitTests :: forall e . EmailUnitTest -> Spec (console :: CONSOLE | e) Unit
+runUnitTests :: EmailUnitTest -> Spec Unit
 runUnitTests emailUnitTest@(EmailUnitTest {email: e, shouldPass: result, errorString: err }) = do
     let msg = if result
                 then "email address " <> e <> " is good"
                 else "email address " <> e <> " is bad because: " <> err
     it msg do
-        result <- doUnitTest
-        result `shouldEqual` true
+        result' <- doUnitTest
+        result' `shouldEqual` true
   where
-    doUnitTest :: Aff (console :: CONSOLE | e) Boolean
+    doUnitTest :: Aff Boolean
     doUnitTest = do
         let eitherParseResult = runEmailParser e
         case eitherParseResult of
              Left error -> do
                  when (result == true) $
-                    liftEff $ log $ "ERROR parsing "
+                    liftEffect $ log $ "ERROR parsing "
                                  <> e
                                  <> ": "
                                  <> show error
                  pure (not result)
              Right emailAddress -> do
                  when (result == false) $
-                    liftEff $ log $ "SUCCEED in parsing "
+                    liftEffect $ log $ "SUCCEED in parsing "
                                  <> e
                                  <> ", but should have FAILED because "
                                  <> err
@@ -53,6 +55,9 @@ newtype EmailUnitTest = EmailUnitTest { email :: String
                                       , shouldPass :: Boolean
                                       , errorString :: String
                                       }
+
+unsafeFromCharCode :: Int -> Char
+unsafeFromCharCode = unsafePartial $ fromJust <<< fromCharCode
 
 mkUnitTest :: String -> Boolean -> String -> EmailUnitTest
 mkUnitTest email shouldPass errorString =
@@ -250,6 +255,6 @@ units = [ mkUnitTest "first.last@example.com" true ""
         , mkUnitTest "test.\r\n \r\n obs@syntax.com" true "obs-fws allows multiple lines"
         , mkUnitTest "test. \r\n \r\n obs@syntax.com" true "obs-fws allows multiple lines (test 2: space before break)"
         , mkUnitTest "test.\r\n\r\n obs@syntax.com" false "obs-fws must have at least one WSP per line"
-        , mkUnitTest ("\"null \\" <> singleton (fromCharCode 0) <> "\"@char.com") true "can have escaped null character"
-        , mkUnitTest ("\"null " <> singleton (fromCharCode 0) <> "\"@char.com") false "cannot have unescaped null character"
+        , mkUnitTest ("\"null \\" <> singleton (unsafeFromCharCode 0) <> "\"@char.com") true "can have escaped null character"
+        , mkUnitTest ("\"null " <> singleton (unsafeFromCharCode 0) <> "\"@char.com") false "cannot have unescaped null character"
         ]
