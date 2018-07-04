@@ -13,7 +13,8 @@
   "dependencies": {
     "purescript-string-parsers": "^4.0",
     "purescript-aff": "^5.0",
-    "purescript-transformers": "^4.1"
+    "purescript-transformers": "^4.1",
+    "purescript-generics-rep": "^6.0"
   },
   "repository": {
     "type": "git",
