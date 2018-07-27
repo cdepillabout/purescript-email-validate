@@ -8,5 +8,5 @@ install:
     - pulp --version
     - bower update
 script:
-    - pulp build
-    - pulp test
+    - pulp build -- +RTS -N1 -RTS
+    - pulp test -- +RTS -N1 -RTS
