@@ -12,9 +12,9 @@
   ],
   "dependencies": {
     "purescript-string-parsers": "^5.0",
-    "purescript-aff": "^5.0",
-    "purescript-transformers": "^4.1",
-    "purescript-generics-rep": "^6.0"
+    "purescript-aff": "^5.1",
+    "purescript-transformers": "^4.2",
+    "purescript-generics-rep": "^6.1"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,6 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "purescript-spec": "^3.0.0"
+    "purescript-spec": "^4.0.0-rc1"
   }
 }

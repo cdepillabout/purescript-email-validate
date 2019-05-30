@@ -206,7 +206,7 @@ crlf = void $ cr *> lf
 isObsNoWsCtl :: Char -> Boolean
 isObsNoWsCtl c = inClassRange (unsafeFromCharCode 1) (unsafeFromCharCode 8) c
               || inClassRange (unsafeFromCharCode 14) (unsafeFromCharCode 31) c
-              || inClass "\11\12\127" c
+              || inClass "\x0B\x0C\x7F" c
 
 obsNoWsCtl :: EmailParser Char
 obsNoWsCtl = satisfy isObsNoWsCtl

@@ -8,18 +8,18 @@ import Data.Foldable (traverse_)
 import Data.Maybe (fromJust)
 import Data.String.CodeUnits (singleton)
 import Effect (Effect)
-import Effect.Aff (Aff)
+import Effect.Aff (Aff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Test.Spec (Spec, describe, it)
 import Test.Spec.Assertions (shouldEqual)
 import Test.Spec.Reporter.Console (consoleReporter)
-import Test.Spec.Runner (run)
+import Test.Spec.Runner (runSpec)
 import Text.Email.Validate (runEmailParser)
 
 main :: Effect Unit
-main = run [consoleReporter] do
+main = launchAff_ $ runSpec [consoleReporter] do
     describe "email validation" do
         traverse_ runUnitTests units
 
