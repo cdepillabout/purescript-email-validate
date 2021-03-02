@@ -21,6 +21,6 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "purescript-spec": "git://github.com/fsoikin/purescript-spec#purescript-0.14"
+    "purescript-spec": "^5.0.0"
   }
 }
