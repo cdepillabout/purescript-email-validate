@@ -11,17 +11,16 @@
     "output"
   ],
   "dependencies": {
-    "purescript-string-parsers": "^5.0",
-    "purescript-aff": "^5.1",
-    "purescript-transformers": "^4.2",
-    "purescript-generics-rep": "^6.1"
+    "purescript-string-parsers": "^6.0.0",
+    "purescript-aff": "^6.0.0",
+    "purescript-transformers": "^5.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/cdepillabout/purescript-email-validate"
+    "url": "https://github.com/cdepillabout/purescript-email-validate"
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "purescript-spec": "^4.0.0-rc1"
+    "purescript-spec": "^5.0.0"
   }
 }
