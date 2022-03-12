@@ -1,17 +1,10 @@
 {
   "name": "purescript-email-validate",
   "version": "1.0.8",
-  "moduleType": [
-    "node"
-  ],
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "output"
-  ],
+  "moduleType": ["node"],
+  "ignore": ["**/.*", "node_modules", "bower_components", "output"],
   "dependencies": {
-    "purescript-string-parsers": "^6.0.0",
+    "purescript-string-parsers": "^7.0.0",
     "purescript-aff": "^6.0.0",
     "purescript-transformers": "^5.0.0"
   },

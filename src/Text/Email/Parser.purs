@@ -22,9 +22,7 @@ import Data.Maybe (fromJust)
 import Data.String (Pattern(..), contains)
 import Data.String.CodeUnits (singleton)
 import Partial.Unsafe (unsafePartial)
-import Text.Parsing.StringParser (Parser)
-import Text.Parsing.StringParser.Combinators (many, many1, optional, sepBy1)
-import Text.Parsing.StringParser.CodePoints (char, eof, satisfy)
+import StringParser (Parser, many, many1, optional, sepBy1, char, eof, satisfy)
 
 -- | Represents an email address.
 newtype EmailAddress = EmailAddress { localPart :: String
