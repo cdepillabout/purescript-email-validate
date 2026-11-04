@@ -5,8 +5,8 @@ node_js:
 install:
     - npm install
     - export PATH="node_modules/.bin:$PATH"
-    - pulp --version
-    - bower update
+    - spago --version
+    - spago install
 script:
-    - pulp build -- +RTS -N1 -RTS
-    - pulp test -- +RTS -N1 -RTS
+    - spago build --purs-args "+RTS -N1 -RTS"
+    - spago test --purs-args "+RTS -N1 -RTS"
