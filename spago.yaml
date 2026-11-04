@@ -1,0 +1,29 @@
+package:
+  name: email-validate
+  description: PureScript library to parse an email address.
+  publish:
+    version: 7.0.1
+    license: BSD-3-Clause
+    location:
+      githubOwner: cdepillabout
+      githubRepo: purescript-email-validate
+  dependencies:
+    - bifunctors: ">=5.0.0 <7.0.0"
+    - control: ">=5.0.0 <7.0.0"
+    - either: ">=5.0.0 <7.0.0"
+    - foldable-traversable: ">=5.0.1 <7.0.0"
+    - lists: ">=6.0.1 <8.0.0"
+    - maybe: ">=5.0.0 <7.0.0"
+    - partial: ">=3.0.0 <5.0.0"
+    - prelude: ">=5.0.1 <7.0.0"
+    - string-parsers: ">=7.0.0 <9.0.0"
+    - strings: ">=5.0.0 <7.0.0"
+  test:
+    main: Test.Main
+    dependencies:
+      - aff: ">=7.0.0 <8.0.0"
+      - console: ">=6.0.0 <7.0.0"
+      - effect: ">=4.0.0 <5.0.0"
+      - spec: ">=6.0.0 <7.0.0"
+      - transformers: ">=6.0.0 <7.0.0"
+workspace: {}

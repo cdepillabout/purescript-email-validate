@@ -13,15 +13,15 @@ A small library providing an EmailAddress type.  Based on the Haskell library
 ### Installing
 
 ```sh
-$ npm install
-$ ./node_modules/.bin/bower install purescript-email-validate
+$ spago install email-validate
 ```
 
 ### Building / Testing
 
 ```sh
-$ pulp build
-$ pulp test
+$ npm install
+$ npm run build
+$ npm test
 ```
 
 ### Usage
